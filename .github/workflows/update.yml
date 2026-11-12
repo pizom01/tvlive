@@ -1,0 +1,32 @@
+name: update-playlist
+
+on:
+  schedule:
+    - cron: '0 16 * * *'   # UTC 16:00 = 北京时间 0 点
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch sources
+        run: |
+          curl -sSL -o src.m3u https://iptv-org.github.io/iptv/countries/cn.m3u
+          {
+            echo '#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"'
+            grep -v '^#EXTM3U' src.m3u
+          } > tv.m3u
+          rm -f src.m3u
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tv.m3u
+          git diff --staged --quiet || git commit -m "auto update $(date -u +%F)"
+          git push
