@@ -20,12 +20,14 @@ jobs:
 
       - name: Merge sources
         shell: pwsh
-        run: ./scripts/merge.ps1 -Out tv.m3u
+        run: |
+          ./scripts/merge.ps1 -Out tv.m3u
+          ./scripts/merge.ps1 -Out tv2.m3u -CctvSat
 
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tv.m3u
+          git add tv.m3u tv2.m3u
           git diff --staged --quiet || git commit -m "auto update $(date -u +%F)"
           git push

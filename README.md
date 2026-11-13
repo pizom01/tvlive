@@ -1,11 +1,19 @@
 # tvlive
 
-自用 IPTV 订阅。每天北京时间 0 点由 GitHub Actions 自动合并三个公开源，输出 `tv.m3u`。
+自用 IPTV 订阅。每天北京时间 0 点由 GitHub Actions 自动合并三个公开源。
 
 ## 订阅地址
 
+| 文件 | 内容 | 更新方式 |
+|---|---|---|
+| `tv.m3u` | 全部频道（央视 + 卫视 + 港澳台 + 其他） | 每天 0 点自动 |
+| `tv2.m3u` | **只含央视频道 + 卫视频道** | 每天 0 点自动 |
+| `tv-live.m3u` | 本地实测快照（拉不通的已剔除） | 手动，需要时重新导出 |
+
 ```
 https://raw.githubusercontent.com/pizom01/tvlive/main/tv.m3u
+https://raw.githubusercontent.com/pizom01/tvlive/main/tv2.m3u
+https://raw.githubusercontent.com/pizom01/tvlive/main/tv-live.m3u
 ```
 
 （国内访问不通的话，把 `raw.githubusercontent.com` 换成任意 GitHub 加速镜像前缀）
@@ -23,7 +31,9 @@ https://raw.githubusercontent.com/pizom01/tvlive/main/tv.m3u
 ## 目录结构
 
 ```
-tv.m3u                     # 生成物，别手改，会被 Action 覆盖
+tv.m3u                     # 生成物（全量），别手改，会被 Action 覆盖
+tv2.m3u                    # 生成物（仅央视+卫视），同上
+tv-live.m3u                # 本地实测快照，Action 不碰，手动更新
 scripts/merge.ps1          # 合并脚本（PowerShell，Actions 与本地都能跑）
 .github/workflows/update.yml
 ```
@@ -32,6 +42,7 @@ scripts/merge.ps1          # 合并脚本（PowerShell，Actions 与本地都能
 
 ```powershell
 pwsh ./scripts/merge.ps1 -Out tv.m3u
+pwsh ./scripts/merge.ps1 -Out tv2.m3u -CctvSat
 ```
 
 ## 为什么 Action 里不做可用性探测
@@ -41,13 +52,13 @@ GitHub Actions 的 runner 在境外，而这些源绝大多数做了地域/运�
 所以这里的分工是：
 
 - **仓库**：只做合并、去重、频道名归一化、分组，保证覆盖率。
-- **本地**：用 [IPTV-API 桌面端](https://github.com/Guovin/iptv-api) 在真实网络下测速筛选，得到可用性最高的版本。
+- **本地**：用 [IPTV-API 桌面端](https://github.com/Guovin/iptv-api) 在真实网络下测速筛选，得到 `tv-live.m3u`（实测快照，需要时重新导出后手动提交）。
 
 ## 调整
 
-- 加/减源：改 `scripts/merge.ps1` 里的 `$sources` 数组。
+- 加/减源：改 `scripts/merge.ps1` 里的 `$sources` 数组（每项可带 `fallback` 备用镜像）。
 - 每频道地址数：`-MaxUrls 5`。
-- 嫌"其他频道"太多：目前脚本输出央视/卫视/港澳台/其他四个分组，按需在 `$groups` 里删掉。
+- 只要央视+卫视：加 `-CctvSat`；要自定义分组用 `-OnlyGroups 央视频道,港澳台频道`。
 
 ## 注意
 
