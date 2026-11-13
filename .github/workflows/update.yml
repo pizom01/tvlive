@@ -8,20 +8,19 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: update-playlist
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch sources
-        run: |
-          curl -sSL -o src.m3u https://iptv-org.github.io/iptv/countries/cn.m3u
-          {
-            echo '#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"'
-            grep -v '^#EXTM3U' src.m3u
-          } > tv.m3u
-          rm -f src.m3u
+      - name: Merge sources
+        shell: pwsh
+        run: ./scripts/merge.ps1 -Out tv.m3u
 
       - name: Commit
         run: |
