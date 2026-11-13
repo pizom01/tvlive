@@ -16,7 +16,38 @@ https://raw.githubusercontent.com/pizom01/tvlive/main/tv2.m3u
 https://raw.githubusercontent.com/pizom01/tvlive/main/tv-live.m3u
 ```
 
-（国内访问不通的话，把 `raw.githubusercontent.com` 换成任意 GitHub 加速镜像前缀）
+（国内访问不通的话，用下面的加速方式）
+
+## 国内访问加速
+
+`raw.githubusercontent.com` 在国内经常很慢甚至直连不通，可以套一层代理前缀。实测数据（2026-11-14，本机联通线路，拉取 172 KB 的 `tv.m3u`）：
+
+| 方式 | 耗时 | 速度 | 说明 |
+|---|---|---|---|
+| 直连 | 13.6 ~ 16.5 s | ~11 KB/s | 经常不通或极慢 |
+| `https://gh-proxy.com/` | 2.1 s | 81 KB/s | **推荐** |
+| `https://ghfast.top/` | 2.1 s | 82 KB/s | **推荐**，可作备份 |
+| `https://cdn.jsdelivr.net/gh/pizom01/tvlive@main/` | 4.4 s | 39 KB/s | CDN，有缓存（最长 12 小时），更新会延迟 |
+| `https://ghproxy.net/` | 12.4 s | 14 KB/s | 能用但慢 |
+| `https://github.moeyy.xyz/` | 超时 | — | 实测不通 |
+| `https://mirror.ghproxy.com/` | 超时 | — | 实测不通 |
+
+用法：把原始地址整段拼在代理前缀后面；jsDelivr 则是换成 `gh/用户名/仓库@分支/文件名` 的写法。
+
+```bash
+# 代理前缀版（推荐 gh-proxy）
+https://gh-proxy.com/https://raw.githubusercontent.com/pizom01/tvlive/main/tv2.m3u
+https://ghfast.top/https://raw.githubusercontent.com/pizom01/tvlive/main/tv2.m3u
+
+# jsDelivr 版
+https://cdn.jsdelivr.net/gh/pizom01/tvlive@main/tv2.m3u
+
+# 另外两个文件同理，只改最后的文件名
+https://gh-proxy.com/https://raw.githubusercontent.com/pizom01/tvlive/main/tv.m3u
+https://gh-proxy.com/https://raw.githubusercontent.com/pizom01/tvlive/main/tv-live.m3u
+```
+
+> 这些代理站都是第三方服务，随时可能失效、限速或加广告页；上面的数据只是某一时段的单次测量。如果播放器支持填多个订阅地址，建议「直连 + gh-proxy」两条一起填，一条挂了另一条顶上。
 
 ## 合并的三个源
 
